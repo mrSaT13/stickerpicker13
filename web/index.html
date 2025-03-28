@@ -15,7 +15,6 @@
     <link rel="stylesheet" href="style/index.css"/>
     <link rel="stylesheet" href="style/spinner.css"/>
     
-   
     <script src="src/index.js" type="module"></script>
     
     <script nomodule>
@@ -25,8 +24,47 @@
 <body>
     <noscript>This sticker picker requires JavaScript</noscript>
 
-   
+    <!-- Контейнер для стикеров -->
     <div id="sticker-container"></div>
+
+    <script type="module">
+        async function loadSignalStickers() {
+            const signalUrl = "https://signal.art/addstickers/#pack_id=57aaacd99e7f748deaa2eeec463cff6e&pack_key=c37c567ce9867b65c1897e76dc54303f89dc76d135d462e5ba15ed8f20e85f8d";
+            const signalApiUrl = "https://unstoppablecarl.github.io/signalstickers/api/v1/packs/";
+
+            const urlParams = new URL(signalUrl);
+            const packId = urlParams.hash.split('=')[1].split('&')[0];
+
+            const response = await fetch(`${signalApiUrl}${packId}`);
+            if (!response.ok) {
+                console.error("Ошибка загрузки Signal-стикеров");
+                return [];
+            }
+
+            const packData = await response.json();
+            return packData.stickers.map(sticker => ({
+                url: `https://cdn.signalstickers.com/${packId}/${sticker.file}`,
+                body: "Signal Sticker"
+            }));
+        }
+
+        async function displayStickers() {
+            const stickerContainer = document.getElementById("sticker-container");
+            const signalStickers = await loadSignalStickers();
+
+            signalStickers.forEach(sticker => {
+                const img = document.createElement("img");
+                img.src = sticker.url;
+                img.alt = "Signal Sticker";
+                img.style.width = "100px";  // Размер стикеров
+                img.style.margin = "5px";
+                stickerContainer.appendChild(img);
+            });
+        }
+
+        displayStickers();
+    </script>
 
 </body>
 </html>
+
